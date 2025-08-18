@@ -38,14 +38,21 @@ Or add to your `home-manager` config:
 ```nix
 # example home.nix
 {
-  imports = [ inputs.hm-color.homeModules.default ];
+  config,
+  inputs,
+  ...
+}:
 
-  hm-color = {
-    execOnceHyprland = true;
+{
+  imports = [ inputs.hm-color.homeModules.hm-color ];
+  services.hm-color = {
+    enable = true;
+    run-in-hyprland = true;
+		# All needs either run-in-hyprland or run-as-systemd to be true.
     swww-cache = "${config.xdg.cacheHome}/swww";
-    nix-theme-file = "${config.xdg.configHome}/hm-theme.nix";
-    flake-path = "/home/you/.config/home-manager"; # optional
-    gitCommit.enable = true; # optional
+    nix-theme-file = "${config.home.homeDirectory}/nix-config/home/theme/default.nix";
+    flake-path = "${config.home.homeDirectory}/nix-config#hoppxi@ea"; # flake path must have #fragment
+    git-commit = false;
   };
 }
 ```
@@ -64,31 +71,3 @@ hm-color \
 - `--nix-out` → write theme as nix file
 - `-f` → optional flake path for `home-manager switch`
 - `-g` → optionally commit config changes
-
-```nix
-{
-	inputs = {
-		nixpkgs.url = "github:NixOS/nixpkgs";
-		hm-color.url = "github:hoppxi/hm-color";
-	};
-	outputs = { self, nixpkgs, hm-color, ... }:
-		let
-			system = "x86_64-linux";
-			pkgs = nixpkgs.legacyPackages.${system};
-		in {
-			homeConfigurations.yourUser = nixpkgs.lib.homeManagerConfiguration {
-			inherit pkgs;
-			modules = [
-				./home.nix
-				{
-					home.packages = [ hm-color.packages.${system}.default ];
-					# add to exec-once
-  				wayland.windowManager.hyprland.settings.exec-once = [
-						"hm-color -n ~/nix-config/theme.nix -f ~/nix-config -gc -gp"
-					];
-				}
-			];
-		};
-	};
-}
-```

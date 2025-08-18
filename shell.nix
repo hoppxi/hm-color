@@ -3,8 +3,7 @@
 }:
 
 pkgs.mkShell {
-  buildInputs = [
-    pkgs.go
-    pkgs.git
+  buildInputs = with pkgs; [
+    go
   ];
 }

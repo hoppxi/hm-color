@@ -1,10 +1,9 @@
 {
-  description = "hm-color - Dynamic theming tool for NixOS with swww";
+  description = "hm-color dynamic theming Go service";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    home-manager.url = "github:nix-community/home-manager";
   };
 
   outputs =
@@ -12,76 +11,74 @@
       self,
       nixpkgs,
       flake-utils,
-      home-manager,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs { inherit system; };
       in
       {
-        packages.default = pkgs.buildGoModule {
+        # build the Go binary
+        packages.hm-color = pkgs.buildGoModule {
           pname = "hm-color";
           version = "0.1.0";
 
           src = ./.;
+          vendorHash = "sha256-RzVtyevt/bFkuGkxQmgsDFHRV8eQcmLhZAzPyON3P4I=";
 
-          vendorHash = null; # fill with nix build
           subPackages = [ "." ];
 
           meta = with pkgs.lib; {
-            description = "Dynamic theming for NixOS wallpapers using swww";
+            description = "Dynamic theming tool for NixOS with swww wallpaper manager";
+            longDescription = ''
+              hm-color is a tool that integrates with Home Manager and swww to
+              dynamically update your system's color theme. It can generate Nix,
+              CSS, SCSS, or JSON outputs, commit changes to your Nix config, and
+              optionally trigger a Home Manager switch.
+            '';
             homepage = "https://github.com/hoppxi/hm-color";
+            changelog = "https://github.com/hoppxi/hm-color/releases";
             license = licenses.mit;
-            maintainers = [ maintainers.yourself ];
+            maintainers = with maintainers; [ hoppxi ];
             platforms = platforms.linux;
+            mainProgram = "hm-color";
           };
         };
-
+        packages.default = self.packages.${system}.hm-color;
         devShells.default = pkgs.mkShell {
-          buildInputs = [
-            pkgs.go
-            pkgs.git
+          buildInputs = with pkgs; [
+            go
           ];
         };
       }
     )
     // {
-      homeModules.default =
+      # Home Manager module
+      homeModules.hm-color =
         {
           config,
-          pkgs,
           lib,
+          pkgs,
+          inputs,
           ...
         }:
         let
-          cfg = config.hm-color;
-          bin = "${self.packages.${config.system}.default}/bin/hm-color";
+          cfg = config.services.hm-color;
+          bin = lib.getExe inputs.hm-color.packages.${pkgs.system}.hm-color;
           hmColorCmd = lib.concatStringsSep " " (
             [
               "${bin}"
               "--swww-cache ${cfg.swww-cache}"
-              "-n"
               "--nix-out ${cfg.nix-theme-file}"
             ]
-            ++ lib.optional (cfg.flake-path != "") "-f ${cfg.flake-path}"
-            ++ lib.optional cfg.gitCommit.enable "-g"
+            ++ lib.optional (cfg.flake-path != null && cfg.flake-path != "") "-f ${cfg.flake-path}"
+            ++ lib.optional cfg.git-commit "-g"
           );
         in
         {
-          options.hm-color = {
-            execOnceHyprland = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-              description = "Run hm-color via Hyprland's exec-once.";
-            };
-
-            execOnceSystemd = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-              description = "Run hm-color as a systemd user service.";
-            };
+          options.services.hm-color = {
+            enable = lib.mkEnableOption "hm-color dynamic theming";
 
             swww-cache = lib.mkOption {
               type = lib.types.path;
@@ -91,29 +88,42 @@
 
             nix-theme-file = lib.mkOption {
               type = lib.types.path;
-              default = "";
+              default = null;
               description = "File where hm-color writes the generated nix theme.";
             };
 
             flake-path = lib.mkOption {
-              type = lib.types.path;
-              default = "";
-              description = "Flake path for home-manager switch.";
+              type = lib.types.nullOr lib.types.path;
+              default = null;
+              description = "Optional flake path for home-manager switch.";
             };
 
-            gitCommit.enable = lib.mkOption {
+            git-commit = lib.mkOption {
               type = lib.types.bool;
               default = false;
-              description = "Enable committing Nix config changes after updating colors.";
+              description = "Commit Nix config changes after updating colors.";
+            };
+
+            run-as-systemd = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Run hm-color as a systemd user service.";
+            };
+
+            run-in-hyprland = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Run hm-color via Hyprland's exec-once.";
             };
           };
 
-          config = {
-            home.packages = [ self.packages.${config.system}.default ];
+          config = lib.mkIf cfg.enable {
+            home.packages = [ inputs.hm-color.packages.${pkgs.system}.hm-color ];
+            # Hyprland exec-once
+            wayland.windowManager.hyprland.settings.exec-once = lib.mkIf cfg.run-in-hyprland [ hmColorCmd ];
 
-            wayland.windowManager.hyprland.settings.exec-once = lib.mkIf cfg.execOnceHyprland [ hmColorCmd ];
-
-            systemd.user.services."hm-color" = lib.mkIf cfg.execOnceSystemd {
+            # systemd user service
+            systemd.user.services."hm-color" = lib.mkIf cfg.run-as-systemd {
               Unit = {
                 Description = "hm-color dynamic theming";
                 After = [ "graphical-session.target" ];
@@ -128,6 +138,5 @@
             };
           };
         };
-
     };
 }
