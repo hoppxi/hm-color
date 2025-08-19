@@ -72,8 +72,8 @@
               "--swww-cache ${cfg.swww-cache}"
               "--nix-out ${cfg.nix-theme-file}"
             ]
-            ++ lib.optional (cfg.flake-path != null && cfg.flake-path != "") "-f ${cfg.flake-path}"
-            ++ lib.optional cfg.git-commit "-g"
+            ++ lib.optional cfg.theme "-t ${cfg.theme}"
+            ++ lib.optional cfg.activate "-a"
           );
         in
         {
@@ -92,16 +92,16 @@
               description = "File where hm-color writes the generated nix theme.";
             };
 
-            flake-path = lib.mkOption {
-              type = lib.types.nullOr lib.types.path;
-              default = null;
-              description = "Optional flake path for home-manager switch.";
-            };
-
-            git-commit = lib.mkOption {
+            activate-hm = lib.mkOption {
               type = lib.types.bool;
               default = false;
-              description = "Commit Nix config changes after updating colors.";
+              description = "Activate home-manager to apply the colors";
+            };
+
+            theme = lib.mkOption {
+              type = lib.types.string;
+              default = "dark";
+              description = "Theme to use dark or light or system";
             };
 
             run-as-systemd = lib.mkOption {

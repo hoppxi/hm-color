@@ -48,9 +48,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfg.SCSSOut, "scss-out", "", "Write SCSS variables output to a file")
 	rootCmd.PersistentFlags().BoolVarP(&cfg.CSSStdout, "css", "c", false, "Output theme as CSS variables to stdout")
 	rootCmd.PersistentFlags().StringVar(&cfg.CSSOut, "css-out", "", "Write CSS variables output to a file")
-	rootCmd.PersistentFlags().StringVarP(&cfg.FlakePath, "flake", "f", "", "Run home-manager switch --flake <path> after generation")
-	rootCmd.PersistentFlags().BoolVar(&cfg.Prune, "prune", false, "Delete the previous home-manager generation after switching")
-	rootCmd.PersistentFlags().BoolVarP(&cfg.GitCommit, "git-commit", "g", false, "Commit nix config with message 'update color'")
+	rootCmd.PersistentFlags().BoolVarP(&cfg.Activate, "activate", "a", false, "Activate home-manager to reapply")
 }
 
 func Execute() error {

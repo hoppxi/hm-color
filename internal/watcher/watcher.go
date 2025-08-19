@@ -51,7 +51,6 @@ func Start(cfg *config.Config) error {
 				// Always take the last field as the wallpaper path
 				wallpaper := parts[len(parts)-1]
 
-				// Ensure path is absolute (swww sometimes writes relative paths)
 				if !filepath.IsAbs(wallpaper) {
 					wallpaper = filepath.Join(filepath.Dir(event.Name), wallpaper)
 				}
@@ -88,9 +87,8 @@ func Start(cfg *config.Config) error {
 					output.Handle("nix", out, cfg.NixStdout, cfg.NixOut)
 				}
 
-				// Optional flake handling
-				if cfg.FlakePath != "" {
-					exec.ApplyFlake(cfg.FlakePath, cfg.Prune, cfg.GitCommit)
+				if cfg.Activate {
+					exec.ApplyFlake()
 				}
 			}
 		case err := <-w.Errors:

@@ -13,7 +13,5 @@ type Config struct {
 	CSSStdout  bool
 	CSSOut     string
 
-	FlakePath string
-	Prune     bool
-	GitCommit bool
+	Activate   bool
 }
