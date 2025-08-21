@@ -76,8 +76,8 @@
               "${bin}"
               "--swww-cache ${cfg.swww-cache}"
               "--nix-out ${cfg.nix-theme-file}"
+              "-t ${cfg.theme}"
             ]
-            ++ lib.optional cfg.theme "-t ${cfg.theme}"
             ++ lib.optional cfg.activate "-a"
           );
         in
@@ -104,7 +104,11 @@
             };
 
             theme = lib.mkOption {
-              type = lib.types.string;
+              type = lib.types.enum [
+                "dark"
+                "light"
+                "system"
+              ];
               default = "dark";
               description = "Theme to use dark or light or system";
             };
