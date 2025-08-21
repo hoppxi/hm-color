@@ -127,7 +127,10 @@
           };
 
           config = lib.mkIf cfg.enable {
-            home.packages = [ inputs.hm-color.packages.${pkgs.system}.hm-color ];
+            home.packages = [
+              inputs.hm-color.packages.${pkgs.system}.hm-color
+              mcuc.packages.${pkgs.system}.default
+            ];
             # Hyprland exec-once
             wayland.windowManager.hyprland.settings.exec-once = lib.mkIf cfg.run-in-hyprland [ hmColorCmd ];
 
