@@ -78,7 +78,7 @@
               "--nix-out ${cfg.nix-theme-file}"
               "-t ${cfg.theme}"
             ]
-            ++ lib.optional cfg.activate "-a"
+            ++ lib.optional cfg.activate-hm "-a"
           );
         in
         {
