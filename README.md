@@ -51,8 +51,6 @@ Or add to your `home-manager` config:
 		# All needs either run-in-hyprland or run-as-systemd to be true.
     swww-cache = "${config.xdg.cacheHome}/swww";
     nix-theme-file = "${config.home.homeDirectory}/nix-config/home/theme/default.nix";
-    flake-path = "${config.home.homeDirectory}/nix-config#hoppxi@ea"; # flake path must have #fragment
-    git-commit = false;
   };
 }
 ```
@@ -62,12 +60,8 @@ Or add to your `home-manager` config:
 ```bash
 hm-color \
   --swww-cache ~/.cache/swww \
-  --nix-out ~/.config/hm-theme.nix \
-  -f /home/you/.config/home-manager \
-  -g
+  --nix-out ~/.config/hm-theme.nix
 ```
 
 - `--swww-cache` → path to swww cache (default: `$XDG_CACHE_HOME/swww`)
 - `--nix-out` → write theme as nix file
-- `-f` → optional flake path for `home-manager switch`
-- `-g` → optionally commit config changes

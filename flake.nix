@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    mcuc.url = "github:hoppxi/mcu-cli";
+    mcuc.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -11,6 +13,7 @@
       self,
       nixpkgs,
       flake-utils,
+      mcuc,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -22,7 +25,7 @@
         # build the Go binary
         packages.hm-color = pkgs.buildGoModule {
           pname = "hm-color";
-          version = "0.1.0";
+          version = "0.1.1";
 
           src = ./.;
           vendorHash = "sha256-RzVtyevt/bFkuGkxQmgsDFHRV8eQcmLhZAzPyON3P4I=";
@@ -49,6 +52,8 @@
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
+            swww
+            mcuc.packages.${system}.default
           ];
         };
       }

@@ -15,6 +15,7 @@ var cfg = &config.Config{}
 var rootCmd = &cobra.Command{
 	Use:   "hm-color",
 	Short: "Dynamic theming tool for NixOS with swww wallpaper manager",
+	Version: "0.1.1",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		
 		if cfg.SwwwCache == "" {
