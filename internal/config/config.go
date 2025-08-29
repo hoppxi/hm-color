@@ -12,6 +12,4 @@ type Config struct {
 	SCSSOut    string
 	CSSStdout  bool
 	CSSOut     string
-
-	Activate   bool
 }

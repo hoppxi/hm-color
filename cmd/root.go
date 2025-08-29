@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"hm-color/internal/config"
-	"hm-color/internal/watcher"
+	"github.com/hoppxi/recolor/internal/config"
+	"github.com/hoppxi/recolor/internal/watcher"
 
 	"github.com/spf13/cobra"
 )
@@ -13,9 +13,9 @@ import (
 var cfg = &config.Config{}
 
 var rootCmd = &cobra.Command{
-	Use:   "hm-color",
-	Short: "Dynamic theming tool for NixOS with swww wallpaper manager",
-	Version: "0.1.1",
+	Use:   "recolor",
+	Short: "Dynamic theming tool with swww wallpaper manager",
+	Version: "1.0.0",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		
 		if cfg.SwwwCache == "" {
@@ -49,7 +49,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfg.SCSSOut, "scss-out", "", "Write SCSS variables output to a file")
 	rootCmd.PersistentFlags().BoolVarP(&cfg.CSSStdout, "css", "c", false, "Output theme as CSS variables to stdout")
 	rootCmd.PersistentFlags().StringVar(&cfg.CSSOut, "css-out", "", "Write CSS variables output to a file")
-	rootCmd.PersistentFlags().BoolVarP(&cfg.Activate, "activate", "a", false, "Activate home-manager to reapply")
 }
 
 func Execute() error {

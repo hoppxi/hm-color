@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"hm-color/cmd"
+	"github.com/hoppxi/recolor/cmd"
 )
 
 func main() {

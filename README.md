@@ -1,67 +1,72 @@
-# hm-color
+# recolor
 
-Dynamic theming for **NixOS** wallpapers using [swww](https://github.com/LGFae/swww) and **Material You** color extraction.
-Whenever your wallpaper changes, `hm-color` extracts a full Material Design 3 color scheme and updates your system theme automatically.
+> [!IMPORTANT]  
+> **Project renamed:** This project was previously called **hm-color**, built around NixOS and Home Manager.  
+> However, the Home Manager workflow proved too slow and rigid — every wallpaper change required a full rebuild, which is not ideal for large configurations.
+>
+> To solve this, the project has been rebranded to **recolor**:
+>
+> - It no longer depends on Home Manager.
+> - Instead, it listens to wallpaper changes (currently via `swww`) and generates theme files directly.
+> - This makes it lightweight, cross-distro, and easy to integrate with any Linux app.
+
+Dynamic theming for Linux wallpapers using [swww](https://github.com/LGFae/swww) and **Material You** color extraction.  
+Whenever your wallpaper changes, `recolor` extracts a full Material Design 3 color scheme and regenerates theme files for your system.
+
+`recolor` can output multiple formats (CSS, SCSS, JSON, Nix).
+
+---
 
 ## Installation
 
-Using flakes:
+### With Go
 
 ```bash
-nix run github:hoppxi/hm-color
+go install github.com/hoppxi/recolor
 ```
 
-Or add to your `home-manager` config:
+### With Nix (optional)
 
-```nix
-# example flake.nix
-{
-	inputs = {
-		nixpkgs.url = "github:NixOS/nixpkgs";
-		hm-color.url = "github:hoppxi/hm-color";
-	};
-	outputs = { self, nixpkgs, hm-color, ... }:
-		let
-			system = "x86_64-linux";
-			pkgs = nixpkgs.legacyPackages.${system};
-		in {
-			homeConfigurations.yourUser = nixpkgs.lib.homeManagerConfiguration {
-			inherit pkgs;
-			modules = [
-				./home.nix
-			];
-		};
-	};
-}
+You can still use `recolor` as a flake if you’re on NixOS:
+
+```bash
+nix run github:hoppxi/recolor
 ```
 
-```nix
-# example home.nix
-{
-  config,
-  inputs,
-  ...
-}:
-
-{
-  imports = [ inputs.hm-color.homeModules.hm-color ];
-  services.hm-color = {
-    enable = true;
-    run-in-hyprland = true;
-		# All needs either run-in-hyprland or run-as-systemd to be true.
-    swww-cache = "${config.xdg.cacheHome}/swww";
-    nix-theme-file = "${config.home.homeDirectory}/nix-config/home/theme/default.nix";
-  };
-}
-```
+---
 
 ## Usage
 
+### Export once
+
 ```bash
-hm-color \
+recolor export \
   --swww-cache ~/.cache/swww \
-  --nix-out ~/.config/hm-theme.nix
+  --css-out ~/.config/theme.css
 ```
 
-- `--swww-cache` → path to swww cache (default: `$XDG_CACHE_HOME/swww`)
-- `--nix-out` → write theme as nix file
+### Watch for changes
+
+```bash
+recolor watch \
+  --swww-cache ~/.cache/swww \
+  --json-out ~/.config/theme.json
+```
+
+### Run a command after update
+
+```bash
+recolor watch \
+  --swww-cache ~/.cache/swww \
+  --scss-out ~/.config/theme.scss \
+```
+
+---
+
+## Migration from hm-color
+
+If you were using `hm-color`:
+
+- The binary is now called **`recolor`**.
+- The `--nix-out` flag still works, so you can continue to generate Nix theme files if needed.
+- Home-Manager integration is no longer bundled; instead, you can run `recolor` in `watch` mode and export to any format you like.

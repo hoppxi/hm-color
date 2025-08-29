@@ -25,7 +25,7 @@
         # build the Go binary
         packages.hm-color = pkgs.buildGoModule {
           pname = "hm-color";
-          version = "0.1.1";
+          version = "1.0.0";
 
           src = ./.;
           vendorHash = "sha256-RzVtyevt/bFkuGkxQmgsDFHRV8eQcmLhZAzPyON3P4I=";
@@ -77,7 +77,6 @@
               "--swww-cache ${cfg.swww-cache}"
               "-t ${cfg.theme}"
             ]
-            ++ lib.optional cfg.activate "-a"
             ++ lib.optional (cfg.nix-theme-file != null) "--nix-out ${cfg.nix-theme-file}"
             ++ lib.optional (cfg.scss-theme-file != null) "--scss-out ${cfg.scss-theme-file}"
             ++ lib.optional (cfg.css-theme-file != null) "--css-out ${cfg.css-theme-file}"
@@ -116,12 +115,6 @@
               type = lib.types.path;
               default = null;
               description = "File where hm-color writes the generated json theme.";
-            };
-
-            activate = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-              description = "Activate home-manager to apply the colors";
             };
 
             theme = lib.mkOption {

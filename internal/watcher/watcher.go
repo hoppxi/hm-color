@@ -6,11 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"hm-color/internal/color"
-	"hm-color/internal/config"
-	"hm-color/internal/exec"
-	"hm-color/internal/formats"
-	"hm-color/internal/output"
+	"github.com/hoppxi/recolor/internal/color"
+	"github.com/hoppxi/recolor/internal/config"
+	"github.com/hoppxi/recolor/internal/formats"
+	"github.com/hoppxi/recolor/internal/output"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -85,10 +84,6 @@ func Start(cfg *config.Config) error {
 				if cfg.NixStdout || cfg.NixOut != "" {
 					out := formats.FormatNix(colors)
 					output.Handle("nix", out, cfg.NixStdout, cfg.NixOut)
-				}
-
-				if cfg.Activate {
-					exec.ApplyFlake()
 				}
 			}
 		case err := <-w.Errors:
