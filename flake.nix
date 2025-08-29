@@ -1,5 +1,5 @@
 {
-  description = "hm-color dynamic theming Go service";
+  description = "recolor dynamic theming Go service";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -23,8 +23,8 @@
       in
       {
         # build the Go binary
-        packages.hm-color = pkgs.buildGoModule {
-          pname = "hm-color";
+        packages.recolor = pkgs.buildGoModule {
+          pname = "recolor";
           version = "1.0.0";
 
           src = ./.;
@@ -35,20 +35,20 @@
           meta = with pkgs.lib; {
             description = "Dynamic theming tool for NixOS with swww wallpaper manager";
             longDescription = ''
-              hm-color is a tool that integrates with Home Manager and swww to
+              recolor is a tool that integrates with Home Manager and swww to
               dynamically update your system's color theme. It can generate Nix,
               CSS, SCSS, or JSON outputs, commit changes to your Nix config, and
               optionally trigger a Home Manager switch.
             '';
-            homepage = "https://github.com/hoppxi/hm-color";
-            changelog = "https://github.com/hoppxi/hm-color/releases";
+            homepage = "https://github.com/hoppxi/recolor";
+            changelog = "https://github.com/hoppxi/recolor/releases";
             license = licenses.mit;
             maintainers = with maintainers; [ hoppxi ];
             platforms = platforms.linux;
-            mainProgram = "hm-color";
+            mainProgram = "recolor";
           };
         };
-        packages.default = self.packages.${system}.hm-color;
+        packages.default = self.packages.${system}.recolor;
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
@@ -60,7 +60,7 @@
     )
     // {
       # Home Manager module
-      homeModules.hm-color =
+      homeModules.recolor =
         {
           config,
           lib,
@@ -69,8 +69,8 @@
           ...
         }:
         let
-          cfg = config.services.hm-color;
-          bin = lib.getExe self.packages.${pkgs.system}.hm-color;
+          cfg = config.services.recolor;
+          bin = lib.getExe self.packages.${pkgs.system}.recolor;
           hmColorCmd = lib.concatStringsSep " " (
             [
               "${bin}"
@@ -84,8 +84,8 @@
           );
         in
         {
-          options.services.hm-color = {
-            enable = lib.mkEnableOption "hm-color dynamic theming";
+          options.services.recolor = {
+            enable = lib.mkEnableOption "recolor dynamic theming";
 
             swww-cache = lib.mkOption {
               type = lib.types.path;
@@ -96,25 +96,25 @@
             nix-theme-file = lib.mkOption {
               type = lib.types.path;
               default = null;
-              description = "File where hm-color writes the generated nix theme.";
+              description = "File where recolor writes the generated nix theme.";
             };
 
             scss-theme-file = lib.mkOption {
               type = lib.types.path;
               default = null;
-              description = "File where hm-color writes the generated scss theme.";
+              description = "File where recolor writes the generated scss theme.";
             };
 
             css-theme-file = lib.mkOption {
               type = lib.types.path;
               default = null;
-              description = "File where hm-color writes the generated css theme.";
+              description = "File where recolor writes the generated css theme.";
             };
 
             json-theme-file = lib.mkOption {
               type = lib.types.path;
               default = null;
-              description = "File where hm-color writes the generated json theme.";
+              description = "File where recolor writes the generated json theme.";
             };
 
             theme = lib.mkOption {
@@ -130,19 +130,19 @@
             start-with-systemd = lib.mkOption {
               type = lib.types.bool;
               default = true;
-              description = "Run hm-color as a systemd user service.";
+              description = "Run recolor as a systemd user service.";
             };
 
             start-with-hyprland = lib.mkOption {
               type = lib.types.bool;
               default = false;
-              description = "Run hm-color via Hyprland's exec-once.";
+              description = "Run recolor via Hyprland's exec-once.";
             };
           };
 
           config = lib.mkIf cfg.enable {
             home.packages = [
-              self.packages.${pkgs.system}.hm-color
+              self.packages.${pkgs.system}.recolor
               mcuc.packages.${pkgs.system}.default
               pkgs.swww
             ];
@@ -150,9 +150,9 @@
             wayland.windowManager.hyprland.settings.exec-once = lib.mkIf cfg.start-with-hyprland [ hmColorCmd ];
 
             # systemd user service
-            systemd.user.services."hm-color" = lib.mkIf cfg.start-with-systemd {
+            systemd.user.services."recolor" = lib.mkIf cfg.start-with-systemd {
               Unit = {
-                Description = "hm-color dynamic theming";
+                Description = "recolor dynamic theming";
                 After = [ "graphical-session.target" ];
               };
               Service = {
