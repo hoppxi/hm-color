@@ -70,15 +70,18 @@
         }:
         let
           cfg = config.services.hm-color;
-          bin = lib.getExe inputs.hm-color.packages.${pkgs.system}.hm-color;
+          bin = lib.getExe self.packages.${pkgs.system}.hm-color;
           hmColorCmd = lib.concatStringsSep " " (
             [
               "${bin}"
               "--swww-cache ${cfg.swww-cache}"
-              "--nix-out ${cfg.nix-theme-file}"
               "-t ${cfg.theme}"
             ]
-            ++ lib.optional cfg.activate-hm "-a"
+            ++ lib.optional cfg.activate "-a"
+            ++ lib.optional (cfg.nix-theme-file != null) "--nix-out ${cfg.nix-theme-file}"
+            ++ lib.optional (cfg.scss-theme-file != null) "--scss-out ${cfg.scss-theme-file}"
+            ++ lib.optional (cfg.css-theme-file != null) "--css-out ${cfg.css-theme-file}"
+            ++ lib.optional (cfg.json-theme-file != null) "--json-out ${cfg.json-theme-file}"
           );
         in
         {
@@ -97,7 +100,25 @@
               description = "File where hm-color writes the generated nix theme.";
             };
 
-            activate-hm = lib.mkOption {
+            scss-theme-file = lib.mkOption {
+              type = lib.types.path;
+              default = null;
+              description = "File where hm-color writes the generated scss theme.";
+            };
+
+            css-theme-file = lib.mkOption {
+              type = lib.types.path;
+              default = null;
+              description = "File where hm-color writes the generated css theme.";
+            };
+
+            json-theme-file = lib.mkOption {
+              type = lib.types.path;
+              default = null;
+              description = "File where hm-color writes the generated json theme.";
+            };
+
+            activate = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = "Activate home-manager to apply the colors";
@@ -113,13 +134,13 @@
               description = "Theme to use dark or light or system";
             };
 
-            run-as-systemd = lib.mkOption {
+            start-with-systemd = lib.mkOption {
               type = lib.types.bool;
               default = true;
               description = "Run hm-color as a systemd user service.";
             };
 
-            run-in-hyprland = lib.mkOption {
+            start-with-hyprland = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = "Run hm-color via Hyprland's exec-once.";
@@ -128,14 +149,15 @@
 
           config = lib.mkIf cfg.enable {
             home.packages = [
-              inputs.hm-color.packages.${pkgs.system}.hm-color
+              self.packages.${pkgs.system}.hm-color
               mcuc.packages.${pkgs.system}.default
+              pkgs.swww
             ];
             # Hyprland exec-once
-            wayland.windowManager.hyprland.settings.exec-once = lib.mkIf cfg.run-in-hyprland [ hmColorCmd ];
+            wayland.windowManager.hyprland.settings.exec-once = lib.mkIf cfg.start-with-hyprland [ hmColorCmd ];
 
             # systemd user service
-            systemd.user.services."hm-color" = lib.mkIf cfg.run-as-systemd {
+            systemd.user.services."hm-color" = lib.mkIf cfg.start-with-systemd {
               Unit = {
                 Description = "hm-color dynamic theming";
                 After = [ "graphical-session.target" ];
