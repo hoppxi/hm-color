@@ -40,7 +40,7 @@ nix run github:hoppxi/recolor
 ### Export once
 
 ```bash
-recolor export \
+recolor \
   --swww-cache ~/.cache/swww \
   --css-out ~/.config/theme.css
 ```
@@ -48,7 +48,7 @@ recolor export \
 ### Watch for changes
 
 ```bash
-recolor watch \
+recolor \
   --swww-cache ~/.cache/swww \
   --json-out ~/.config/theme.json
 ```
@@ -56,7 +56,7 @@ recolor watch \
 ### Run a command after update
 
 ```bash
-recolor watch \
+recolor \
   --swww-cache ~/.cache/swww \
   --scss-out ~/.config/theme.scss \
 ```
