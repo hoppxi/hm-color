@@ -70,3 +70,20 @@ If you were using `hm-color`:
 - The binary is now called **`recolor`**.
 - The `--nix-out` flag still works, so you can continue to generate Nix theme files if needed.
 - Home-Manager integration is no longer bundled; instead, you can run `recolor` in `watch` mode and export to any format you like.
+
+## TODO / Roadmap
+
+- [ ] Add more output formats:
+  - [ ] YAML
+  - [ ] TOML
+  - [ ] Xresources
+  - [ ] GTK `gtk.css` generator
+- [ ] Provide app-specific templates:
+  - [ ] Alacritty
+  - [ ] Kitty
+  - [ ] Hyprland
+- [ ] Add `--on-change` hook for running custom commands after theme update
+- [ ] Template system for custom file outputs
+- [ ] DBus signal integration for apps to subscribe to theme changes
+- [ ] Package recolor for more distros (Arch, Debian, Fedora, etc.)
+- [ ] Improve Material You palette extraction (configurable strategies)
